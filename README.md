@@ -42,3 +42,10 @@ Change production passwords after the first deployment. Demo credentials should 
 - Never commit `.env` or your real Neon database password.
 - The first staff login initializes the existing demo library state in Neon if the database has no library state yet.
 - Staff changes are persisted to Neon. Member profile changes are also persisted through the backend.
+
+## V6 interface
+- Blue liquid-glass authentication card over the photographic library wallpaper.
+- Full liquid-glass admin/member shell with colored inline SVG navigation icons.
+- Light/dark theme toggle stored in the browser.
+- Live local clock with seconds in the top bar.
+- Existing Neon/JWT authentication and cloud state APIs are unchanged.
