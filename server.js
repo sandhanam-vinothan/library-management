@@ -19,6 +19,10 @@ async function initDb() {
     role TEXT NOT NULL CHECK (role IN ('admin','librarian','member')), member_id TEXT, active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`;
+  await sql`CREATE TABLE IF NOT EXISTS password_reset_requests (
+    id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    requested_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), resolved_at TIMESTAMPTZ
+  )`;
   await sql`CREATE TABLE IF NOT EXISTS app_state (
     id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1), data JSONB NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`;
@@ -48,6 +52,42 @@ app.post('/api/auth/login', async (req,res) => {
   res.cookie('lms_token', tokenFor(u), { httpOnly:true, sameSite:'lax', secure:process.env.NODE_ENV==='production', maxAge:12*60*60*1000 });
   res.json({ user:{role:u.role, mid:u.member_id || undefined} });
 });
+
+app.post('/api/auth/signup', async (req,res) => {
+  try {
+    const name=String(req.body.name||'').trim(), email=String(req.body.email||'').trim().toLowerCase();
+    const pass=String(req.body.pass||''), phone=String(req.body.phone||'').trim(), dept=String(req.body.dept||'').trim();
+    if (name.length < 2) return res.status(400).json({error:'Enter your full name.'});
+    if (!/^\S+@\S+\.\S+$/.test(email)) return res.status(400).json({error:'Enter a valid email address.'});
+    if (pass.length < 8) return res.status(400).json({error:'Password must be at least 8 characters.'});
+    const exists=await sql`SELECT 1 FROM users WHERE LOWER(email)=${email} OR LOWER(username)=${email} LIMIT 1`;
+    if (exists.length) return res.status(409).json({error:'An account already exists for this email.'});
+    const stateRows=await sql`SELECT data FROM app_state WHERE id=1`;
+    if (!stateRows[0]?.data) return res.status(503).json({error:'Library data is not ready yet. Please contact the administrator.'});
+    const state=stateRows[0].data, nums=(state.members||[]).map(m=>Number(String(m.id||'').replace(/\D/g,''))||0);
+    const mid='M'+String(Math.max(0,...nums)+1).padStart(3,'0');
+    const hash=await bcrypt.hash(pass,12);
+    await sql`INSERT INTO users(username,email,password_hash,role,member_id) VALUES(${email},${email},${hash},'member',${mid})`;
+    state.members=state.members||[]; state.members.push({id:mid,name,email,phone,type:'Member',dept,status:'Active'});
+    await sql`UPDATE app_state SET data=${JSON.stringify(state)}::jsonb, updated_at=NOW() WHERE id=1`;
+    res.status(201).json({ok:true,message:'Account created. You can now sign in.'});
+  } catch(e) { console.error(e); res.status(500).json({error:'Could not create account.'}); }
+});
+app.post('/api/auth/forgot', async (req,res) => {
+  const email=String(req.body.email||'').trim().toLowerCase();
+  const rows=await sql`SELECT id FROM users WHERE active=TRUE AND LOWER(email)=${email} LIMIT 1`;
+  if (rows[0]) await sql`INSERT INTO password_reset_requests(user_id) VALUES(${rows[0].id})`;
+  res.json({ok:true,message:'If that account exists, a password-reset request has been recorded. Please contact the library administrator.'});
+});
+app.post('/api/auth/change-password', auth, async (req,res) => {
+  const current=String(req.body.current||''), next=String(req.body.next||'');
+  if (next.length < 8) return res.status(400).json({error:'New password must be at least 8 characters.'});
+  const rows=await sql`SELECT password_hash FROM users WHERE id=${req.user.id} LIMIT 1`;
+  if (!rows[0] || !(await bcrypt.compare(current,rows[0].password_hash))) return res.status(400).json({error:'Current password is incorrect.'});
+  const hash=await bcrypt.hash(next,12); await sql`UPDATE users SET password_hash=${hash} WHERE id=${req.user.id}`;
+  res.json({ok:true,message:'Password changed successfully.'});
+});
+
 app.post('/api/auth/logout', (_req,res) => { res.clearCookie('lms_token'); res.json({ok:true}); });
 app.get('/api/auth/me', auth, (req,res) => res.json({user:{role:req.user.role, mid:req.user.mid || undefined}}));
 app.get('/api/state', auth, async (_req,res) => { const rows=await sql`SELECT data FROM app_state WHERE id=1`; res.json({data:rows[0]?.data || null}); });

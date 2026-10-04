@@ -58,3 +58,13 @@ label{display:block;font-weight:500;margin-bottom:12px}label>*{margin-top:5px;fo
  .top{left:0;padding:0 14px}main{margin:0;padding:80px 14px 90px}.two{grid-template-columns:1fr}.pop{right:10px}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* production authentication */
+.login{min-height:100vh;display:grid;grid-template-columns:minmax(320px,1.05fr) minmax(420px,.95fr);place-items:stretch;padding:0;background:linear-gradient(135deg,#eef6ff,#f8fbff 55%,#eefcf5)}
+.auth-art{display:flex;flex-direction:column;justify-content:center;padding:clamp(40px,8vw,110px);background:linear-gradient(145deg,#0f4c81,#176b87 55%,#1d8a72);color:white;position:relative;overflow:hidden}
+.auth-art:after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;background:rgba(255,255,255,.08);right:-140px;bottom:-160px}
+.auth-art h2{font-size:clamp(34px,4vw,58px);line-height:1.04;margin:28px 0 14px}.auth-art p{font-size:17px;line-height:1.7;max-width:570px;color:#e7f5ff}.auth-orb{width:86px;height:86px;border-radius:26px;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:42px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.auth-pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.auth-pills span{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);padding:9px 12px;border-radius:999px;font-size:13px}
+.login .auth-card{width:min(520px,calc(100% - 44px));padding:42px;margin:auto;border:1px solid #e5eaf0;box-shadow:0 24px 70px rgba(20,43,68,.12)}
+.auth-head h1{font-size:32px;margin:24px 0 8px}.auth-head .sub{margin-bottom:28px}.auth-btn{width:100%;min-height:46px;margin-top:8px}.auth-links{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-top:20px;font-size:13px}.passbox{position:relative}.passbox input{padding-right:64px}.eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#1769e0;font-weight:600;cursor:pointer}.auth-form{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.auth-form>label:last-of-type,.auth-form>.auth-btn{grid-column:1/-1}
+@media(max-width:800px){.login{grid-template-columns:1fr}.auth-art{display:none}.login .auth-card{margin:32px auto}.auth-form{grid-template-columns:1fr}.auth-form>*{grid-column:1!important}.auth-links{align-items:flex-start;flex-direction:column}}

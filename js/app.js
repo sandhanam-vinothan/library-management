@@ -40,7 +40,7 @@ const api = async (url, options = {}) => {
   return body;
 };
 const save = () => { if (U && U.role !== 'member') api('/api/state', { method: 'PUT', body: JSON.stringify({ data: S }) }).catch(e => toast(e.message)); };
-let U = null, tab = 'issue', Q = { b: '', c: '', m: '', t: '' }, bellOpen = false;
+let U = null, authMode = 'login', tab = 'issue', Q = { b: '', c: '', m: '', t: '' }, bellOpen = false;
 async function loadCloudState() {
   const r = await api('/api/state');
   if (r.data) S = r.data;
@@ -205,7 +205,7 @@ const mybooks = () => head('My Books', 'Books you have borrowed or rented.') + `
 const history = () => head('History', 'Your transactions and payments.') + `<div class="card">${table(TH, myTx().slice().reverse().map(t => txRow(t)))}</div>`;
 function profile() {
   const m = mem(U.mid);
-  return head('Profile', 'Keep your contact details up to date.') + `<div class="card" style="max-width:600px"><form data-f="profile" class="two">${fld('name', 'Full name', m.name)}${fld('phone', 'Phone number', m.phone)}<label>Member ID<input value="${m.id}" disabled></label><label>Email<input value="${esc(m.email)}" disabled></label><label>Member type<input value="${m.type}" disabled></label>${fld('dept', 'Department / Course', m.dept)}<div><button class="btn">Save profile</button></div></form></div>`;
+  return head('Profile', 'Keep your contact details up to date.') + `<div class="card" style="max-width:600px"><form data-f="profile" class="two">${fld('name', 'Full name', m.name)}${fld('phone', 'Phone number', m.phone)}<label>Member ID<input value="${m.id}" disabled></label><label>Email<input value="${esc(m.email)}" disabled></label><label>Member type<input value="${m.type}" disabled></label>${fld('dept', 'Department / Course', m.dept)}<div><button class="btn">Save profile</button></div></form></div><div class="card" style="max-width:600px;margin-top:18px"><h2>Security</h2><form data-f="password" class="two"><label>Current password<input name="current" type="password" required></label><span></span><label>New password<input name="next" type="password" minlength="8" required></label><label>Confirm new password<input name="confirm" type="password" minlength="8" required></label><div><button class="btn">Change password</button></div></form></div>`;
 }
 function search() {
   const q = decodeURIComponent(location.hash.split('/')[1] || ''), l = q.toLowerCase(), staff = U.role !== 'member';
@@ -217,8 +217,10 @@ function search() {
 /* ---------- shell, login, router ---------- */
 const PAGES = { dashboard, books, members, desk, txns, reports, settings, home, explore, mybooks, history, profile, search };
 function login() {
-  $('#app').innerHTML = `<div class="login"><div class="card"><div class="brand" style="padding:0">📚 Library</div><h1>Welcome back</h1><p class="sub">Sign in to manage or browse the library.</p><form data-f="login">${fld('user', 'Username or email')}<label>Password<input name="pass" type="password"></label><button class="btn" style="width:100%">Log in</button></form>
-  <p><button class="link" data-a="forgot">Forgot password?</button></p><div class="chips"><button data-a="demo" data-id="admin|admin123">Admin</button><button data-a="demo" data-id="librarian|lib123">Librarian</button><button data-a="demo" data-id="arun@lib.com|member123">Member</button></div></div></div>`;
+  const loginBox = `<div class="auth-head"><div class="brand" style="padding:0">📚 City Central Library</div><h1>Welcome back</h1><p class="sub">Sign in securely to continue.</p></div><form data-f="login">${fld('user', 'Username or email')}<label>Password<div class="passbox"><input name="pass" type="password" required><button type="button" class="eye" data-a="eye">Show</button></div></label><button class="btn auth-btn">Log in</button></form><div class="auth-links"><button class="link" data-a="auth" data-id="forgot">Forgot password?</button><span>New member? <button class="link" data-a="auth" data-id="signup">Create account</button></span></div>`;
+  const signupBox = `<div class="auth-head"><div class="brand" style="padding:0">📚 City Central Library</div><h1>Create member account</h1><p class="sub">Register to browse books and view your library activity.</p></div><form data-f="signup" class="auth-form">${fld('name','Full name')}${fld('email','Email address')} ${fld('phone','Phone number')}${fld('dept','Department / Course')}<label>Password<div class="passbox"><input name="pass" type="password" minlength="8" required><button type="button" class="eye" data-a="eye">Show</button></div></label><button class="btn auth-btn">Create account</button></form><div class="auth-links"><span>Already registered? <button class="link" data-a="auth" data-id="login">Sign in</button></span></div>`;
+  const forgotBox = `<div class="auth-head"><div class="brand" style="padding:0">📚 City Central Library</div><h1>Forgot password</h1><p class="sub">Submit a reset request for your registered account.</p></div><form data-f="forgot">${fld('email','Registered email')}<button class="btn auth-btn">Request password reset</button></form><div class="auth-links"><button class="link" data-a="auth" data-id="login">← Back to sign in</button></div>`;
+  $('#app').innerHTML = `<div class="login"><div class="auth-art"><div class="auth-orb">📖</div><h2>Your library, organized.</h2><p>Manage books, members, lending, rentals and payments from one secure workspace.</p><div class="auth-pills"><span>✓ Cloud database</span><span>✓ Role based access</span><span>✓ Secure login</span></div></div><div class="card auth-card">${authMode==='signup'?signupBox:authMode==='forgot'?forgotBox:loginBox}</div></div>`;
 }
 function render() {
   if (!U) return login();
@@ -235,8 +237,8 @@ const actions = {
   tab(id) { tab = id; render(); },
   bell() { bellOpen = !bellOpen; render(); },
   async logout() { try { await api('/api/auth/logout', { method: 'POST' }); } catch {} U = null; location.hash = ''; render(); },
-  forgot() { const e = prompt('Enter your email to reset your password'); if (e) toast(`Reset link sent to ${e} (demo only)`); },
-  demo(id) { const [u, p] = id.split('|'); const f = $('form[data-f=login]'); f.user.value = u; f.pass.value = p; },
+  auth(id) { authMode=id; render(); },
+  eye(_id,a) { const box=a.closest('.passbox'), input=box.querySelector('input'); input.type=input.type==='password'?'text':'password'; a.textContent=input.type==='password'?'Show':'Hide'; },
   editBook: bookForm, editMember: memberForm,
   viewBook(id) { const b = bk(id); modal(esc(b.title), `<div class="bk" style="align-items:flex-start;margin-bottom:12px">${cover(S.books.find(x => x.id === id))}<div>${esc(b.author)}<br><span class="hint">ISBN ${b.isbn} · ${b.category}</span></div></div><p>${esc(b.desc)}</p><p>Price <b>${inr(b.price)}</b> · Rental <b>${inr(b.rent)}</b></p><p>${badge(bstat(b))} ${avail(b)} of ${b.copies} copies available</p>`); },
   delBook(id) { if (S.txns.some(t => t.bookId === id && active(t))) return toast('This book is currently out and cannot be deleted.'); if (confirm('Delete this book?')) { S.books = S.books.filter(b => b.id !== id); save(); render(); } },
@@ -249,7 +251,7 @@ const actions = {
   reset() { if (confirm('Reset all data to the demo set?')) { S = seed(); save(); render(); toast('Demo data restored'); } }
 };
 document.addEventListener('click', e => {
-  const a = e.target.closest('[data-a]'); if (a && actions[a.dataset.a]) { if (a.dataset.a !== 'bell') bellOpen = false; actions[a.dataset.a](a.dataset.id); }
+  const a = e.target.closest('[data-a]'); if (a && actions[a.dataset.a]) { if (a.dataset.a !== 'bell') bellOpen = false; actions[a.dataset.a](a.dataset.id, a); }
   else if (bellOpen && !e.target.closest('.pop')) { bellOpen = false; render(); }
 });
 document.addEventListener('submit', async e => {
@@ -257,6 +259,13 @@ document.addEventListener('submit', async e => {
   if (f === 'login') {
     try { const r = await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ user: d.user, pass: d.pass }) }); U = r.user; await loadCloudState(); location.hash = ''; render(); }
     catch (err) { toast(err.message); }
+  } else if (f === 'signup') {
+    try { const r=await api('/api/auth/signup',{method:'POST',body:JSON.stringify(d)}); toast(r.message); authMode='login'; render(); } catch(err){ toast(err.message); }
+  } else if (f === 'forgot') {
+    try { const r=await api('/api/auth/forgot',{method:'POST',body:JSON.stringify(d)}); toast(r.message); authMode='login'; render(); } catch(err){ toast(err.message); }
+  } else if (f === 'password') {
+    if(d.next!==d.confirm) return toast('New passwords do not match.');
+    try { const r=await api('/api/auth/change-password',{method:'POST',body:JSON.stringify({current:d.current,next:d.next})}); toast(r.message); e.target.reset(); } catch(err){ toast(err.message); }
   } else if (f === 'settings') { Object.assign(S.settings, d, { notify: d.notify === 'on' }); save(); toast('Settings saved'); render(); }
   else if (f === 'profile') {
     try { const r = await api('/api/profile', { method: 'PATCH', body: JSON.stringify({ name:d.name, phone:d.phone, dept:d.dept }) }); S = r.data; toast('Profile saved'); render(); }
