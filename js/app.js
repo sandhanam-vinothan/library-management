@@ -201,9 +201,9 @@ function reports() {
 
 function settings() {
   const s = S.settings;
-  return head('Settings', 'Basic library information and data tools.') + `<div class="card" style="max-width:700px"><form data-f="settings" class="two">${fld('name', 'Library name', s.name)}${fld('email', 'Library email', s.email)}${fld('phone', 'Phone number', s.phone)}${fld('address', 'Address', s.address)}${fld('notify', 'Notifications', s.notify ? 'on' : 'off', '', ['on', 'off'])}<div><button class="btn">Save settings</button></div></form></div>
-  <div class="card" style="max-width:700px"><h2>User management</h2>${table(['Role', 'Login', 'Password'], [['Admin', 'admin', 'admin123'], ['Librarian', 'librarian', 'lib123'], ['Member', 'any member email, e.g. arun@lib.com', 'member123']].map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`))}</div>
-  <div class="card" style="max-width:700px"><h2>Backup</h2><div class="bar"><button class="btn" data-a="backup">Download backup</button><label class="btn ghost" style="margin:0">Restore backup<input type="file" accept=".json" id="restore" hidden></label><button class="btn red" data-a="reset">Reset demo data</button></div></div>`;
+  return head('Settings', 'Basic library information and data tools.') + `<div class="settings-grid"><div class="card"><h2>Library information</h2><form data-f="settings" class="two">${fld('name', 'Library name', s.name)}${fld('email', 'Library email', s.email)}${fld('phone', 'Phone number', s.phone)}${fld('address', 'Address', s.address)}${fld('notify', 'Notifications', s.notify ? 'on' : 'off', '', ['on', 'off'])}<div><button class="btn">Save settings</button></div></form></div>
+  <div class="card"><h2>User access</h2>${table(['Role', 'Sign-in'], [['Admin', 'Administrator account'], ['Librarian', 'Librarian account'], ['Member', 'Registered member email']].map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`))}<p class="hint">Passwords are protected and are never displayed in the interface.</p></div>
+  <div class="card settings-wide"><h2>Backup &amp; data tools</h2><div class="bar"><button class="btn" data-a="backup">Download backup</button><label class="btn ghost" style="margin:0">Restore backup<input type="file" accept=".json" id="restore" hidden></label><button class="btn red" data-a="reset">Reset demo data</button></div></div></div>`;
 }
 
 /* member side */
