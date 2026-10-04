@@ -49,3 +49,6 @@ Change production passwords after the first deployment. Demo credentials should 
 - Light/dark theme toggle stored in the browser.
 - Live local clock with seconds in the top bar.
 - Existing Neon/JWT authentication and cloud state APIs are unchanged.
+
+## V7 visual update
+Raised 3D liquid-glass surfaces, dimensional statistic cards, hover lift/perspective, deeper sidebar/topbar layers, dark-mode glow depth, and tactile button states. Backend/auth/database behavior is unchanged.
