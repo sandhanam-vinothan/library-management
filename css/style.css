@@ -104,3 +104,42 @@ label{display:block;font-weight:500;margin-bottom:12px}label>*{margin-top:5px;fo
 @keyframes bookFloat{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -25px;rotate:2deg}}@keyframes openBookFloat{0%,100%{translate:0 0}50%{translate:0 -17px}}@keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-20px) scale(1.06)}}@keyframes streak{0%,100%{opacity:.15;scale:.85 1}50%{opacity:.8;scale:1.12 1}}@keyframes cardEnter{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
 @media(max-width:800px){.model-book{scale:.68}.mb1{left:-28px;top:10%}.mb2{right:-25px;top:14%}.mb3{left:2%;bottom:7%}.open-book{scale:.58;right:-36px;bottom:4%}.orb{opacity:.65}.login .auth-card{background:rgba(255,255,255,.93)}}
 @media(prefers-reduced-motion:reduce){.model-book,.open-book,.orb,.light-streak,.login .auth-card{animation:none!important}}
+
+/* V5 — photographic library wallpaper authentication */
+.login{
+  position:relative;isolation:isolate;min-height:100vh;display:grid;place-items:center;
+  padding:32px 18px;overflow:hidden;background:#10243a;
+}
+.login:before{
+  content:"";position:absolute;inset:-18px;z-index:-5;
+  background-image:linear-gradient(rgba(6,22,40,.18),rgba(6,22,40,.18)),url('../assets/library-login-wallpaper.png');
+  background-size:cover;background-position:center center;
+  transform:scale(1.035);animation:wallpaperDrift 18s ease-in-out infinite alternate;
+  filter:saturate(.96) contrast(1.02);
+}
+.login:after{
+  content:"";position:absolute;inset:0;z-index:-4;
+  background:radial-gradient(circle at 50% 48%,rgba(5,18,34,.05) 0 24%,rgba(5,18,34,.12) 62%,rgba(5,18,34,.30) 100%);
+  pointer-events:none;
+}
+.auth-art,.auth-scene,.auth-scene-v4{display:none!important}
+.login .auth-card{
+  position:relative;z-index:3;width:min(550px,calc(100vw - 34px));min-height:570px;
+  display:flex;flex-direction:column;justify-content:center;padding:48px 52px 42px;margin:0;
+  background:rgba(248,251,255,.965);border:1px solid rgba(255,255,255,.95);border-radius:28px;
+  box-shadow:0 35px 95px rgba(4,19,38,.34),0 10px 30px rgba(4,19,38,.16),inset 0 1px 0 #fff;
+  backdrop-filter:blur(24px) saturate(1.08);animation:cardEnter .55s cubic-bezier(.2,.8,.2,1) both;
+}
+.login .auth-card:before{content:"";position:absolute;inset:0;border-radius:28px;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.72),transparent 28%,transparent 72%,rgba(52,211,153,.08))}
+.auth-head{position:relative;text-align:center}.auth-head .brand{font-size:20px!important;font-weight:800;color:#155eef;padding:0 0 5px!important}.auth-head h1{font-size:34px;margin:17px 0 7px}.auth-head .sub{margin-bottom:27px;color:#64748b}
+.auth-card label{font-weight:600;color:#1f2937}.auth-card input,.auth-card select{min-height:48px;border-radius:13px;background:#fff;border:1px solid #d7e0eb}.auth-card input:focus{border-color:#77a6ff;box-shadow:0 0 0 4px rgba(37,99,235,.10)}
+.auth-btn{min-height:50px;border-radius:13px;font-weight:700;box-shadow:0 12px 28px rgba(37,99,235,.24)}
+.auth-links{position:relative;margin-top:21px}.eye{width:42px;height:42px;display:grid;place-items:center}.eye svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8}
+.auth-caption{display:none!important}
+.wallpaper-particles{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.wallpaper-particles i{position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.72);box-shadow:0 0 16px rgba(255,220,150,.95);animation:dustFloat 8s ease-in-out infinite}
+.wallpaper-particles i:nth-child(1){left:14%;top:24%;animation-delay:-1s}.wallpaper-particles i:nth-child(2){left:26%;top:67%;animation-delay:-5s}.wallpaper-particles i:nth-child(3){left:73%;top:22%;animation-delay:-3s}.wallpaper-particles i:nth-child(4){left:84%;top:63%;animation-delay:-7s}.wallpaper-particles i:nth-child(5){left:66%;top:79%;animation-delay:-2s}.wallpaper-particles i:nth-child(6){left:9%;top:76%;animation-delay:-6s}
+@keyframes wallpaperDrift{0%{transform:scale(1.035) translate3d(-.35%,0,0)}100%{transform:scale(1.075) translate3d(.35%,-.45%,0)}}
+@keyframes dustFloat{0%,100%{transform:translateY(0) scale(.7);opacity:.25}50%{transform:translateY(-22px) scale(1.25);opacity:.9}}
+@media(max-width:800px){.login{padding:20px 14px}.login:before{background-position:58% center;filter:saturate(.9) brightness(.84)}.login .auth-card{width:min(470px,100%);min-height:0;padding:34px 25px 30px;border-radius:23px}.auth-head h1{font-size:29px}.auth-head .brand{font-size:18px!important}.auth-form{grid-template-columns:1fr}.auth-form>*{grid-column:1!important}.auth-links{gap:10px;align-items:flex-start;flex-direction:column}}
+@media(prefers-reduced-motion:reduce){.login:before,.wallpaper-particles i,.login .auth-card{animation:none!important}}
